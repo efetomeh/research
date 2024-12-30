@@ -4,6 +4,7 @@ const app = document.getElementById("app");
 const dbName = "ResultDB";
 const storeName = "students";
 let db;
+let uploading = false;  // Track if the upload is in progress
 
 // Open or create the IndexedDB database
 function openDatabase() {
@@ -113,8 +114,9 @@ function renderForm() {
       <label for="file-upload">Upload Excel File:</label>
       <input type="file" id="file-upload" name="file-upload" accept=".xlsx, .xls" required>
 
-      <button type="submit">Upload Results</button>
+      <button type="submit" id="upload-button">Upload Results</button>
     </form>
+    <p id="upload-status"></p>
   `;
 }
 
@@ -122,6 +124,9 @@ function renderForm() {
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+
+  // Show loading message
+  setUploadStatus("Uploading... Please wait.");
 
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -164,7 +169,15 @@ function processStudentData(data) {
 
   // Add each student record to IndexedDB
   studentRecords.forEach(addStudent);
+  setUploadStatus("Upload successful!"); // Success message after upload
   loadFromIndexedDB();
+}
+
+// Set the upload status message
+function setUploadStatus(message) {
+  const statusElement = document.getElementById("upload-status");
+  statusElement.textContent = message;
+  statusElement.style.color = message === "Upload successful!" ? "green" : "orange";
 }
 
 // Render the entire app
